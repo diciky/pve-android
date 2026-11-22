@@ -71,33 +71,7 @@ jobs:
           export JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/temurin-17-jdk-amd64}
           # 测试用 org.json（Android 内置，JVM 需外置）
           curl -sL -o /tmp/org-json.jar https://repo1.maven.org/maven2/org/json/json/20231013/json-20231013.jar
-          mkdir -p SmokeTests/build
-          cp src/com/pvebuddy/android/core/PveClient.java src/com/pvebuddy/android/core/LocalScanner.java SmokeTests/build/
-          # AppLogger 测试副本剥离 android 依赖
-          python3 - <<'PY'
-          import re
-          s = open("src/com/pvebuddy/android/core/AppLogger.java").read()
-          s = s.replace("import android.content.Context;\n\n", "")
-          s = re.sub(r"    public void init\(Context ctx\) \{[\s\S]*?\n    \}\n", "", s, count=1)
-          s = s.replace("    public File logFile() { return file; }\n\n", "")
-          s = re.sub(r"import java\.io\.File;\n", "", s)
-          s = s.replace("    private File file;\n", "")
-          s = s.replace("""            if (logFile != null) {
-                try {
-                    logFile.write(String.format(Locale.US, "%s [%s] [%s] %s%n",
-                            fmt.format(new Date(e.ts)), levelName(level), tag, message));
-                    logFile.flush();
-                } catch (Exception ignore) { }
-            }
-""", "")
-          s = s.replace("""            if (logFile != null) {
-                try { logFile.close(); } catch (Exception ignore) { }
-                if (file != null && file.exists()) file.delete();
-                try { logFile = new FileWriter(file, false); } catch (Exception ignore) { }
-            }
-""", "")
-          open("SmokeTests/build/AppLogger.java", "w").write(s)
-          PY
+          python3 SmokeTests/prepare_test_sources.py
           javac -cp /tmp/org-json.jar -d SmokeTests/build SmokeTests/build/*.java SmokeTests/SmokeTest.java
           python3 SmokeTests/mock_pve.py &> /tmp/mock.log &
           for i in $(seq 1 20); do
