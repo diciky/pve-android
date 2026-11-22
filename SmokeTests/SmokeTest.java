@@ -29,12 +29,12 @@ public final class SmokeTest {
                 !LocalScanner.isValidPrefix("10.10") && !LocalScanner.isValidPrefix("10.256.1")
                 && !LocalScanner.isValidPrefix("a.b.c") && !LocalScanner.isValidPrefix("10.10.10.1")
                 && !LocalScanner.isValidPrefix("010.1.1"));
-        check("接口候选不含蜂窝/VPN（本机）",
+        check("接口候选不含蜂窝/VPN/虚拟网桥",
                 LocalScanner.candidates().stream().allMatch(c ->
-                        c.iface.startsWith("en") || c.iface.startsWith("lo") || c.iface.startsWith("bridge")
-                        || c.iface.startsWith("wlan") || c.iface.startsWith("ap") || c.iface.startsWith("utun")
-                        || c.iface.startsWith("awdl") || c.iface.startsWith("llw") || c.iface.startsWith("gif")
-                        || c.iface.startsWith("stf") || c.iface.startsWith("vir") || c.iface.startsWith("vnic")));
+                        !c.iface.startsWith("rmnet") && !c.iface.startsWith("tun")
+                        && !c.iface.startsWith("ppp") && !c.iface.startsWith("veth")
+                        && !c.iface.startsWith("docker") && !c.iface.startsWith("br-")
+                        && !c.iface.equals("lo") && !c.iface.startsWith("dummy")));
         // 注意：JVM 环境枚举不过滤（candidates 只排除 rmnet/tun/ppp/lo）——macOS 上 utun 属 VPN，
         // Android 上排除逻辑一致；此处只验证方法可运行不抛异常
         check("candidates() 可运行", LocalScanner.candidates() != null);

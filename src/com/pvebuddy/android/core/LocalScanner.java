@@ -60,7 +60,9 @@ public final class LocalScanner {
             for (NetworkInterface ni : list) {
                 String name = ni.getName() == null ? "" : ni.getName();
                 if (name.startsWith("rmnet") || name.startsWith("tun") || name.startsWith("ppp")
-                        || name.equals("lo") || name.startsWith("dummy")) continue;
+                        || name.equals("lo") || name.startsWith("dummy") || name.startsWith("veth")
+                        || name.startsWith("docker") || name.startsWith("br-") || name.startsWith("virbr")
+                        || name.startsWith("vnic")) continue;
                 Enumeration<InetAddress> addrs = ni.getInetAddresses();
                 for (InetAddress a : Collections.list(addrs)) {
                     if (a instanceof Inet4Address && !a.isLoopbackAddress() && !a.isLinkLocalAddress()) {
