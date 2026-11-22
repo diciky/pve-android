@@ -23,7 +23,7 @@ jobs:
         id: sdk-cache
         uses: actions/cache@v4
         with:
-          path: ~/android-sdk
+          path: /home/runner/android-sdk
           key: android-sdk-platform35-bt35
 
       - name: Install Android SDK（platform 35 + build-tools 35.0.0）
@@ -57,7 +57,7 @@ jobs:
 
       - name: Build APK
         env:
-          ANDROID_SDK: $HOME/android-sdk
+          ANDROID_SDK: /home/runner/android-sdk
         run: |
           set -o pipefail
           ./build-apk.sh | tee build.log | tail -20
@@ -66,7 +66,7 @@ jobs:
 
       - name: 冒烟测试（mock PVE e2e，21 项）
         env:
-          ANDROID_SDK: $HOME/android-sdk
+          ANDROID_SDK: /home/runner/android-sdk
         run: |
           export JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/temurin-17-jdk-amd64}
           # 测试用 org.json（Android 内置，JVM 需外置）
