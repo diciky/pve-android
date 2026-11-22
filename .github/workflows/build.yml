@@ -73,6 +73,10 @@ jobs:
           curl -sL -o /tmp/org-json.jar https://repo1.maven.org/maven2/org/json/json/20231013/json-20231013.jar
           python3 SmokeTests/prepare_test_sources.py
           javac -cp /tmp/org-json.jar -d SmokeTests/build SmokeTests/build/*.java SmokeTests/SmokeTest.java
+          # 自签证书（mock PVE 需要）
+          openssl req -x509 -newkey rsa:2048 -keyout /tmp/key.pem -out /tmp/cert.pem \
+            -days 2 -nodes -subj "/CN=127.0.0.1" 2>/dev/null
+          mkdir -p /tmp/pvesmoke/cert && cp /tmp/key.pem /tmp/cert.pem /tmp/pvesmoke/cert/
           python3 SmokeTests/mock_pve.py &> /tmp/mock.log &
           for i in $(seq 1 20); do
             if curl -sk https://127.0.0.1:8006/ | grep -qi proxmox; then echo "mock ready"; break; fi
